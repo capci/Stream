@@ -1,0 +1,8 @@
+{
+	"name": "capci/stream",
+	"autoload": {
+		"psr-4": {
+			"Capci\\Stream\\" : "src"
+		}
+	}
+}
