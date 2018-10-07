@@ -219,6 +219,38 @@ abstract class Stream implements IteratorAggregate, Countable
         };
     }
 
+    public function skipWhile(Closure $predicate): Stream
+    {
+        return new class($this, $predicate) extends Stream {
+
+            private $stream;
+
+            private $predicate;
+
+            public function __construct(Stream $stream, Closure $predicate)
+            {
+                $this->stream = $stream;
+                $this->predicate = $predicate;
+            }
+
+            public function getIterator()
+            {
+                $skip = true;
+                foreach ($this->stream as $value) {
+                    if ($skip) {
+                        if (! ($this->predicate)($value)) {
+                            $skip = false;
+                        }
+                    }
+                    if ($skip) {
+                        continue;
+                    }
+                    yield $value;
+                }
+            }
+        };
+    }
+
     public function limit(int $n): Stream
     {
         return new class($this, $n) extends Stream {
@@ -241,6 +273,38 @@ abstract class Stream implements IteratorAggregate, Countable
                         break;
                     }
                     $limitted ++;
+                    yield $value;
+                }
+            }
+        };
+    }
+
+    public function limitWhile(Closure $predicate): Stream
+    {
+        return new class($this, $predicate) extends Stream {
+
+            private $stream;
+
+            private $predicate;
+
+            public function __construct(Stream $stream, Closure $predicate)
+            {
+                $this->stream = $stream;
+                $this->predicate = $predicate;
+            }
+
+            public function getIterator()
+            {
+                $limit = true;
+                foreach ($this->stream as $value) {
+                    if ($limit) {
+                        if (($this->predicate)($value)) {
+                            $limit = false;
+                        }
+                    }
+                    if(!$limit) {
+                        break;
+                    }
                     yield $value;
                 }
             }
@@ -348,7 +412,7 @@ abstract class Stream implements IteratorAggregate, Countable
     public function allMatch(Closure $predicate): bool
     {
         foreach ($this as $value) {
-            if(!$predicate($value)) {
+            if (! $predicate($value)) {
                 return false;
             }
         }
@@ -358,7 +422,7 @@ abstract class Stream implements IteratorAggregate, Countable
     public function anyMatch(Closure $predicate): bool
     {
         foreach ($this as $value) {
-            if($predicate($value)) {
+            if ($predicate($value)) {
                 return true;
             }
         }
@@ -368,7 +432,7 @@ abstract class Stream implements IteratorAggregate, Countable
     public function noneMatch(Closure $predicate): bool
     {
         foreach ($this as $value) {
-            if($predicate($value)) {
+            if ($predicate($value)) {
                 return false;
             }
         }
