@@ -2,6 +2,8 @@
 
 Java-like Stream API library for PHP.
 
+Requires PHP 7.2 or newer.
+
 ## Usage
 
 Basic usage.
