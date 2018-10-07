@@ -298,7 +298,7 @@ abstract class Stream implements IteratorAggregate, Countable
                 $limit = true;
                 foreach ($this->stream as $value) {
                     if ($limit) {
-                        if (($this->predicate)($value)) {
+                        if (! ($this->predicate)($value)) {
                             $limit = false;
                         }
                     }
@@ -322,7 +322,7 @@ abstract class Stream implements IteratorAggregate, Countable
             public function __construct(Stream $stream, ?Closure $equalityComparator)
             {
                 $this->stream = $stream;
-                $this->eqalityComparator = $equalityComparator;
+                $this->equalityComparator = $equalityComparator;
             }
 
             public function getIterator()
@@ -339,7 +339,7 @@ abstract class Stream implements IteratorAggregate, Countable
                 } else {
                     foreach ($this->stream as $value) {
                         foreach ($yielded as $v) {
-                            if (($this->eqalityComparator)($value, $v)) {
+                            if (($this->equalityComparator)($value, $v)) {
                                 continue 2;
                             }
                         }

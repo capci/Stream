@@ -240,5 +240,418 @@ class StreamTest extends TestCase
         });
         self::assertSame([], $stream->toArray());
     }
+
+    public function testSkip()
+    {
+        $stream = $this->stream->skip(- 1);
+        self::assertSame([
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+        ], $stream->toArray());
+
+        $stream = $this->stream->skip(0);
+        self::assertSame([
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+        ], $stream->toArray());
+
+        $stream = $this->stream->skip(1);
+        self::assertSame([
+            "b",
+            "c",
+            "d",
+            "e"
+        ], $stream->toArray());
+
+        $stream = $this->stream->skip(4);
+        self::assertSame([
+            "e"
+        ], $stream->toArray());
+
+        $stream = $this->stream->skip(5);
+        self::assertSame([], $stream->toArray());
+
+        $stream = $this->stream->skip(6);
+        self::assertSame([], $stream->toArray());
+
+        $stream = $this->emptyStream->skip(- 1);
+        self::assertSame([], $stream->toArray());
+
+        $stream = $this->emptyStream->skip(0);
+        self::assertSame([], $stream->toArray());
+
+        $stream = $this->emptyStream->skip(1);
+        self::assertSame([], $stream->toArray());
+    }
+
+    public function testSkipWhile()
+    {
+        $stream = $this->stream->skipWhile(function ($value) {
+            return false;
+        });
+        self::assertSame([
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+        ], $stream->toArray());
+
+        $stream = $this->stream->skipWhile(function ($value) {
+            return $value === "a";
+        });
+        self::assertSame([
+            "b",
+            "c",
+            "d",
+            "e"
+        ], $stream->toArray());
+
+        $stream = $this->stream->skipWhile(function ($value) {
+            return $value !== "e";
+        });
+        self::assertSame([
+            "e"
+        ], $stream->toArray());
+
+        $stream = $this->stream->skipWhile(function ($value) {
+            return true;
+        });
+        self::assertSame([], $stream->toArray());
+
+        $stream = $this->emptyStream->skipWhile(function ($value) {
+            return false;
+        });
+        self::assertSame([], $stream->toArray());
+
+        $stream = $this->emptyStream->skipWhile(function ($value) {
+            return true;
+        });
+        self::assertSame([], $stream->toArray());
+    }
+
+    public function testLimit()
+    {
+        $stream = $this->stream->limit(- 1);
+        self::assertSame([], $stream->toArray());
+
+        $stream = $this->stream->limit(0);
+        self::assertSame([], $stream->toArray());
+
+        $stream = $this->stream->limit(1);
+        self::assertSame([
+            "a"
+        ], $stream->toArray());
+
+        $stream = $this->stream->limit(4);
+        self::assertSame([
+            "a",
+            "b",
+            "c",
+            "d"
+        ], $stream->toArray());
+
+        $stream = $this->stream->limit(5);
+        self::assertSame([
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+        ], $stream->toArray());
+
+        $stream = $this->stream->limit(6);
+        self::assertSame([
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+        ], $stream->toArray());
+
+        $stream = $this->emptyStream->limit(- 1);
+        self::assertSame([], $stream->toArray());
+
+        $stream = $this->emptyStream->limit(0);
+        self::assertSame([], $stream->toArray());
+
+        $stream = $this->emptyStream->limit(1);
+        self::assertSame([], $stream->toArray());
+    }
+
+    public function testLimitWhile()
+    {
+        $stream = $this->stream->limitWhile(function ($value) {
+            return false;
+        });
+        self::assertSame([], $stream->toArray());
+
+        $stream = $this->stream->limitWhile(function ($value) {
+            return $value === "a";
+        });
+        self::assertSame([
+            "a"
+        ], $stream->toArray());
+
+        $stream = $this->stream->limitWhile(function ($value) {
+            return $value !== "e";
+        });
+        self::assertSame([
+            "a",
+            "b",
+            "c",
+            "d"
+        ], $stream->toArray());
+
+        $stream = $this->stream->limitWhile(function ($value) {
+            return true;
+        });
+        self::assertSame([
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+        ], $stream->toArray());
+
+        $stream = $this->emptyStream->limitWhile(function ($value) {
+            return false;
+        });
+        self::assertSame([], $stream->toArray());
+
+        $stream = $this->emptyStream->limitWhile(function ($value) {
+            return true;
+        });
+        self::assertSame([], $stream->toArray());
+
+        $stream = Stream::ofGenerator(function () {
+            $i = 0;
+            while (true) {
+                yield $i ++;
+            }
+        });
+        $stream = $stream->limit(10);
+        self::assertSame(range(0, 9), $stream->toArray());
+
+        $stream = Stream::ofGenerator(function () {
+            $i = 0;
+            while (true) {
+                yield $i ++;
+            }
+        });
+        $stream = $stream->limitWhile(function ($value) {
+            return $value < 10;
+        });
+        self::assertSame(range(0, 9), $stream->toArray());
+    }
+
+    public function testDistinct()
+    {
+        $stream = $this->stream->distinct();
+        self::assertSame([
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+        ], $stream->toArray());
+
+        $stream = Stream::concat($this->stream, $this->stream);
+        $stream = $this->stream->distinct();
+        self::assertSame([
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+        ], $stream->toArray());
+
+        $stream = $this->emptyStream->distinct();
+        self::assertSame([], $stream->toArray());
+
+        $stream = Stream::concat($this->stream, $this->stream);
+        $stream = $this->stream->distinct(function ($value1, $value2) {
+            return $value1 === $value2;
+        });
+        self::assertSame([
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+        ], $stream->toArray());
+
+        $stream = $this->stream->distinct(function ($value1, $value2) {
+            return false;
+        });
+        self::assertSame([
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+        ], $stream->toArray());
+
+        $stream = $this->stream->distinct(function ($value1, $value2) {
+            return true;
+        });
+        self::assertSame([
+            "a"
+        ], $stream->toArray());
+
+        $stream = $this->emptyStream->distinct(function ($value1, $value2) {
+            return true;
+        });
+        self::assertSame([], $stream->toArray());
+
+        $stream = $this->emptyStream->distinct(function ($value1, $value2) {
+            return false;
+        });
+        self::assertSame([], $stream->toArray());
+    }
+
+    public function testPeek()
+    {
+        $array = [];
+        $stream = $this->stream->peek(function ($value) use (&$array) {
+            $array[] = $value;
+        });
+        self::assertSame([
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+        ], $stream->toArray());
+        self::assertSame([
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+        ], $array);
+
+        $array = [];
+        $stream = $this->emptyStream->peek(function ($value) use (&$array) {
+            $array[] = $value;
+        });
+        self::assertSame([], $stream->toArray());
+        self::assertSame([], $array);
+    }
+
+    public function testForEach()
+    {
+        $array = [];
+        $this->stream->forEach(function ($value) use (&$array) {
+            $array[] = $value;
+        });
+        self::assertSame([
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+        ], $array);
+
+        $array = [];
+        $this->emptyStream->forEach(function ($value) use (&$array) {
+            $array[] = $value;
+        });
+        self::assertSame([], $array);
+    }
+
+    public function testToArray()
+    {
+        self::assertSame([
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+        ], $this->stream->toArray());
+
+        self::assertSame([], $this->emptyStream->toArray());
+    }
+
+    public function testReduce()
+    {
+        self::assertSame("prefix-a-b-c-d-e", $this->stream->reduce("prefix", function ($accum, $value) {
+            return $accum . "-" . $value;
+        }));
+
+        self::assertSame("prefix", $this->emptyStream->reduce("prefix", function ($accum, $value) {
+            return $accum . "-" . $value;
+        }));
+    }
+
+    public function testCount()
+    {
+        self::assertSame(5, $this->stream->count());
+
+        self::assertSame(0, $this->emptyStream->count());
+    }
+
+    public function testAllMatch()
+    {
+        self::assertSame(false, $this->stream->allMatch(function ($value) {
+            return $value === "c";
+        }));
+
+        self::assertSame(true, $this->stream->allMatch(function ($value) {
+            return true;
+        }));
+
+        self::assertSame(false, $this->stream->allMatch(function ($value) {
+            return false;
+        }));
+
+        self::assertSame(true, $this->emptyStream->allMatch(function ($value) {
+            return false;
+        }));
+    }
+
+    public function testAnyMatch()
+    {
+        self::assertSame(true, $this->stream->anyMatch(function ($value) {
+            return $value === "c";
+        }));
+
+        self::assertSame(true, $this->stream->anyMatch(function ($value) {
+            return true;
+        }));
+
+        self::assertSame(false, $this->stream->anyMatch(function ($value) {
+            return false;
+        }));
+
+        self::assertSame(false, $this->emptyStream->anyMatch(function ($value) {
+            return true;
+        }));
+    }
+
+    public function testNoneMatch()
+    {
+        self::assertSame(false, $this->stream->noneMatch(function ($value) {
+            return $value === "c";
+        }));
+
+        self::assertSame(false, $this->stream->noneMatch(function ($value) {
+            return true;
+        }));
+
+        self::assertSame(true, $this->stream->noneMatch(function ($value) {
+            return false;
+        }));
+
+        self::assertSame(true, $this->emptyStream->noneMatch(function ($value) {
+            return true;
+        }));
+    }
 }
 
