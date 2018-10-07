@@ -302,7 +302,7 @@ abstract class Stream implements IteratorAggregate, Countable
                             $limit = false;
                         }
                     }
-                    if(!$limit) {
+                    if (! $limit) {
                         break;
                     }
                     yield $value;
