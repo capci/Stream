@@ -119,3 +119,7 @@ $sum = $stream->reduce(0, function ($accum, $value) {
 * and others
 
 count, allMatch, anyMatch, nonMatch.
+
+## License
+
+MIT

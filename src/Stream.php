@@ -313,22 +313,19 @@ abstract class Stream implements IteratorAggregate, Countable
 
     public function distinct(?Closure $equalityComparator = null): Stream
     {
-        return new class($this, $equalityComparator) extends Stream {
+        if ($equalityComparator === null) {
+            return new class($this) extends Stream {
 
-            private $stream;
+                private $stream;
 
-            private $equalityComparator;
+                public function __construct(Stream $stream)
+                {
+                    $this->stream = $stream;
+                }
 
-            public function __construct(Stream $stream, ?Closure $equalityComparator)
-            {
-                $this->stream = $stream;
-                $this->equalityComparator = $equalityComparator;
-            }
-
-            public function getIterator()
-            {
-                $yielded = [];
-                if ($this->equalityComparator === null) {
+                public function getIterator()
+                {
+                    $yielded = [];
                     foreach ($this->stream as $value) {
                         if (in_array($value, $yielded, true)) {
                             continue;
@@ -336,7 +333,24 @@ abstract class Stream implements IteratorAggregate, Countable
                         $yielded[] = $value;
                         yield $value;
                     }
-                } else {
+                }
+            };
+        } else {
+            return new class($this, $equalityComparator) extends Stream {
+
+                private $stream;
+
+                private $equalityComparator;
+
+                public function __construct(Stream $stream, Closure $equalityComparator)
+                {
+                    $this->stream = $stream;
+                    $this->equalityComparator = $equalityComparator;
+                }
+
+                public function getIterator()
+                {
+                    $yielded = [];
                     foreach ($this->stream as $value) {
                         foreach ($yielded as $v) {
                             if (($this->equalityComparator)($value, $v)) {
@@ -347,8 +361,8 @@ abstract class Stream implements IteratorAggregate, Countable
                         yield $value;
                     }
                 }
-            }
-        };
+            };
+        }
     }
 
     public function peek(Closure $action): Stream
