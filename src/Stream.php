@@ -159,9 +159,7 @@ abstract class Stream implements IteratorAggregate, Countable
             {
                 $array = $this->stream->toArray();
                 usort($array, $this->comparator);
-                foreach ($array as $value) {
-                    yield $value;
-                }
+                yield from $array;
             }
         };
     }
@@ -398,11 +396,7 @@ abstract class Stream implements IteratorAggregate, Countable
 
     public function toArray(): array
     {
-        $array = [];
-        foreach ($this as $value) {
-            $array[] = $value;
-        }
-        return $array;
+        return iterator_to_array($this, false);
     }
 
     public function reduce($identity, Closure $accumulator)

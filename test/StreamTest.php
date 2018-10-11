@@ -63,6 +63,50 @@ class StreamTest extends TestCase
             "d",
             "e"
         ], $stream->toArray());
+
+        $array = [
+            "A" => "a",
+            "B" => "b",
+            "C" => "c",
+            "D" => "d",
+            "E" => "e"
+        ];
+        $stream = Stream::ofIterable($array);
+        $i = 0;
+        foreach ($stream as $key => $value) {
+            self::assertSame($i, $key);
+            self::assertSame(array_values($array)[$i], $value);
+            $i ++;
+        }
+        self::assertSame([
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+        ], $stream->toArray());
+
+        $array = [
+            "A" => "a",
+            "B" => "b",
+            "C" => "c",
+            "D" => "d",
+            "E" => "e"
+        ];
+        $stream = Stream::ofIterable(new \ArrayIterator($array));
+        $i = 0;
+        foreach ($stream as $key => $value) {
+            self::assertSame($i, $key);
+            self::assertSame(array_values($array)[$i], $value);
+            $i ++;
+        }
+        self::assertSame([
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+        ], $stream->toArray());
     }
 
     public function testOf()
@@ -96,6 +140,32 @@ class StreamTest extends TestCase
             yield "d";
             yield "e";
         });
+        self::assertSame([
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+        ], $stream->toArray());
+
+        $array = [
+            "A" => "a",
+            "B" => "b",
+            "C" => "c",
+            "D" => "d",
+            "E" => "e"
+        ];
+        $stream = Stream::ofGenerator(function () use ($array) {
+            foreach ($array as $key => $value) {
+                yield $key => $value;
+            }
+        });
+        $i = 0;
+        foreach ($stream as $key => $value) {
+            self::assertSame($i, $key);
+            self::assertSame(array_values($array)[$i], $value);
+            $i ++;
+        }
         self::assertSame([
             "a",
             "b",
@@ -139,6 +209,11 @@ class StreamTest extends TestCase
             "d",
             "e"
         ], $stream->toArray());
+        $i = 0;
+        foreach ($stream as $key => $value) {
+            self::assertSame($i, $key);
+            $i ++;
+        }
     }
 
     public function testEmpty()
@@ -239,6 +314,22 @@ class StreamTest extends TestCase
             return Stream::of($value, "x");
         });
         self::assertSame([], $stream->toArray());
+
+        $stream = $this->stream->flatMap(function ($value) {
+            yield strtoupper($value) => $value;
+        });
+        $i = 0;
+        foreach ($stream as $key => $value) {
+            self::assertSame($i, $key);
+            $i ++;
+        }
+        self::assertSame([
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+        ], $stream->toArray());
     }
 
     public function testSkip()
