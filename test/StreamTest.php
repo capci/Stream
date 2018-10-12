@@ -209,6 +209,27 @@ class StreamTest extends TestCase
             "d",
             "e"
         ], $stream->toArray());
+
+        $stream1 = Stream::of("a", "b", "c");
+        $stream2 = Stream::of("d", "e");
+        $stream3 = Stream::of("f", "g");
+        $stream = Stream::concat($stream1, $stream2, $stream3);
+        self::assertSame([
+            "a",
+            "b",
+            "c",
+            "d",
+            "e",
+            "f",
+            "g"
+        ], $stream->toArray());
+
+        $stream = Stream::concat();
+        self::assertSame([], $stream->toArray());
+
+        $stream1 = Stream::of("a", "b", "c");
+        $stream2 = Stream::of("d", "e");
+        $stream = Stream::concat($stream1, $stream2);
         $i = 0;
         foreach ($stream as $key => $value) {
             self::assertSame($i, $key);
@@ -743,6 +764,42 @@ class StreamTest extends TestCase
         self::assertSame(true, $this->emptyStream->noneMatch(function ($value) {
             return true;
         }));
+    }
+
+    public function testFindFirstOrDefault()
+    {
+        self::assertSame("a", $this->stream->findFirstOrDefault(null));
+
+        self::assertSame(null, $this->emptyStream->findFirstOrDefault(null));
+    }
+
+    public function testFindLastOrDefault()
+    {
+        self::assertSame("e", $this->stream->findLastOrDefault(null));
+
+        self::assertSame(null, $this->emptyStream->findLastOrDefault(null));
+    }
+
+    public function testMaxOrDefault()
+    {
+        self::assertSame("e", $this->stream->maxOrDefault(function ($value1, $value2) {
+            return ord($value1) - ord($value2);
+        }, null));
+
+        self::assertSame(null, $this->emptyStream->maxOrDefault(function ($value1, $value2) {
+            return ord($value1) - ord($value2);
+        }, null));
+    }
+
+    public function testMinOrDefault()
+    {
+        self::assertSame("a", $this->stream->minOrDefault(function ($value1, $value2) {
+            return ord($value1) - ord($value2);
+        }, null));
+
+        self::assertSame(null, $this->emptyStream->minOrDefault(function ($value1, $value2) {
+            return ord($value1) - ord($value2);
+        }, null));
     }
 }
 

@@ -54,27 +54,23 @@ abstract class Stream implements IteratorAggregate, Countable
         };
     }
 
-    public static function concat(Stream $a, Stream $b): Stream
+    public static function concat(Stream ...$streams): Stream
     {
-        return new class($a, $b) extends Stream {
+        return new class($streams) extends Stream {
 
-            private $a;
+            private $streams;
 
-            private $b;
-
-            public function __construct(Stream $a, Stream $b)
+            public function __construct(array $streams)
             {
-                $this->a = $a;
-                $this->b = $b;
+                $this->streams = $streams;
             }
 
             public function getIterator()
             {
-                foreach ($this->a as $value) {
-                    yield $value;
-                }
-                foreach ($this->b as $value) {
-                    yield $value;
+                foreach ($this->streams as $stream) {
+                    foreach ($stream as $value) {
+                        yield $value;
+                    }
                 }
             }
         };
@@ -445,6 +441,67 @@ abstract class Stream implements IteratorAggregate, Countable
             }
         }
         return true;
+    }
+
+    public function findFirstOrDefault($defaultValue)
+    {
+        foreach ($this as $value) {
+            return $value;
+        }
+        return $defaultValue;
+    }
+
+    public function findLastOrDefault($defaultValue)
+    {
+        $last = $defaultValue;
+        foreach ($this as $value) {
+            $last = $value;
+        }
+        return $last;
+    }
+
+    public function maxOrDefault(Closure $comparator, $defaultValue)
+    {
+        $stillNotIterated = true;
+        $max = null;
+        foreach ($this as $value) {
+            if ($stillNotIterated) {
+                $max = $value;
+                $stillNotIterated = false;
+                continue;
+            }
+            if ($comparator($max, $value) < 0) {
+                $max = $value;
+            }
+        }
+
+        if ($stillNotIterated) {
+            return $defaultValue;
+        }
+
+        return $max;
+    }
+
+    public function minOrDefault(Closure $comparator, $defaultValue)
+    {
+        $stillNotIterated = true;
+        $min = null;
+        foreach ($this as $value) {
+            if ($stillNotIterated) {
+                $min = $value;
+                $stillNotIterated = false;
+                continue;
+            }
+            if ($comparator($min, $value) > 0) {
+                $min = $value;
+            }
+        }
+
+        if ($stillNotIterated) {
+            return $defaultValue;
+        }
+
+        return $min;
     }
 }
 

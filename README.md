@@ -118,7 +118,7 @@ $sum = $stream->reduce(0, function ($accum, $value) {
 
 * and others
 
-count, allMatch, anyMatch, nonMatch.
+count, allMatch, anyMatch, nonMatch, findFirstOrDefault, findLastOrDefault, maxOrDefault, minOrDefault.
 
 ## License
 
