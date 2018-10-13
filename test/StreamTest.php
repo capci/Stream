@@ -175,6 +175,12 @@ class StreamTest extends TestCase
         ], $stream->toArray());
     }
 
+    public function testEmpty()
+    {
+        $stream = Stream::empty();
+        self::assertSame([], $stream->toArray());
+    }
+
     public function testConcat()
     {
         $stream1 = Stream::of();
@@ -235,12 +241,6 @@ class StreamTest extends TestCase
             self::assertSame($i, $key);
             $i ++;
         }
-    }
-
-    public function testEmpty()
-    {
-        $stream = Stream::empty();
-        self::assertSame([], $stream->toArray());
     }
 
     public function testFilter()

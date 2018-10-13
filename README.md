@@ -2,6 +2,8 @@
 
 Java-like Stream API library for PHP.
 
+Intermediate operations are not evaluated until terminal operation is invoked (lazy evaluation).
+
 Requires PHP 7.2 or newer.
 
 ## Usage
@@ -50,6 +52,11 @@ $stream = Stream::ofGenerator(function () {
     yield "c";
 });
 ```
+
+* and others
+
+empty, concat.
+
 ### Intermediate operation
 
 * filter
