@@ -1,5 +1,7 @@
 # Stream
 
+[![Build Status](https://travis-ci.org/capci/Stream.svg?branch=master)](https://travis-ci.org/capci/Stream)
+
 Java-like Stream API library for PHP.
 
 Intermediate operations are not evaluated until terminal operation is invoked (lazy evaluation).
