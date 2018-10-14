@@ -23,5 +23,10 @@
 			"homepage" : "https://github.com/capci"
 		}
 	],
-	"minimum-stability" : "stable"
+	"minimum-stability" : "stable",
+	"description" : "Java-like Stream API library for PHP",
+	"type" : "library",
+	"keywords" : [
+		"Stream API"
+	]
 }

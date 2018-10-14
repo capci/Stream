@@ -2,7 +2,7 @@
 declare(strict_types = 1);
 namespace Capci\Stream\Test;
 
-require_once '../vendor/autoload.php';
+//require_once '../vendor/autoload.php';
 
 use Capci\Stream\Stream;
 use PHPUnit\Framework\TestCase;
